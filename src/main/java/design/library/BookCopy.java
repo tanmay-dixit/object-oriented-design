@@ -7,6 +7,7 @@ import java.util.Queue;
 public class BookCopy {
 
     private static final int MAX_RESERVATIONS = 3;
+    private static int lastCopyNumber = 1;
     private final Book book;
     private final int copyNumber;
     private final Queue<Reservation> reservations;
@@ -15,22 +16,18 @@ public class BookCopy {
     private Member issuer;
 
     public BookCopy(Book book,
-                    int copyNumber,
                     BookLocation location) throws IllegalArgumentException {
-        validate(book, copyNumber, location);
+        validate(book, location);
         this.book = book;
-        this.copyNumber = copyNumber;
+        this.copyNumber = lastCopyNumber++;
         this.location = location;
         this.nextIssuableDate = LocalDate.now();
         this.issuer = null;
         this.reservations = new ArrayDeque<>();
     }
 
-    private void validate(Book book,
-                          int copyNumber,
-                          BookLocation location) throws IllegalArgumentException {
+    private void validate(Book book, BookLocation location) throws IllegalArgumentException {
         Validate.objectIsNonNull(book, "Book");
-        Validate.intIsPositive(copyNumber, "Copy Number");
         Validate.objectIsNonNull(location, "Book Location");
     }
 
@@ -80,7 +77,7 @@ public class BookCopy {
     }
 
     public void removeReservationFor(Member member) {
-        reservations.stream().dropWhile(reservation -> reservation.wasDoneBy(member) && reservation.wasDoneFor(this));
+        reservations.removeIf(reservation -> reservation.wasDoneBy(member) && reservation.wasDoneFor(this));
     }
 
 }
