@@ -1,6 +1,5 @@
 package design.library;
 
-import javax.naming.OperationNotSupportedException;
 import java.time.LocalDate;
 import java.util.ArrayDeque;
 import java.util.Queue;
@@ -59,17 +58,17 @@ public class BookCopy {
         location = newLocation;
     }
 
-    public void issueCopy(Member member, int days) throws OperationNotSupportedException {
+    public void issueCopy(Member member, int days) throws BookCantBeIssuedException {
         if (!canBeIssued()) {
-            throw new OperationNotSupportedException("Book Copy already issued");
+            throw new BookCantBeIssuedException("Book Copy already issued");
         }
         issuer = member;
         nextIssuableDate = LocalDate.now().plusDays(days);
     }
 
-    public void returnCopy() throws OperationNotSupportedException {
+    public void returnCopy() throws BookCantBeReturnedException {
         if (canBeIssued()) {
-            throw new OperationNotSupportedException("Book hasn't been issued. Hence cannot be returned.");
+            throw new BookCantBeReturnedException("Book hasn't been issued. Hence cannot be returned.");
         }
         issuer = null;
         nextIssuableDate = LocalDate.now();

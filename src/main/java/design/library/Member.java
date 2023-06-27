@@ -1,6 +1,5 @@
 package design.library;
 
-import javax.naming.OperationNotSupportedException;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -34,14 +33,18 @@ public class Member {
         membership.renew();
     }
 
-    public void issueBook(BookCopy bookCopy, int days) throws OperationNotSupportedException, IllegalArgumentException {
+    public boolean isActive() {
+        return membership.isActive();
+    }
+
+    public void issueBook(BookCopy bookCopy, int days) throws IllegalArgumentException, InactiveMemberException, BookCantBeIssuedException {
 
         membership.ensureIsActive();
         Validate.objectIsNonNull(bookCopy, "Book Copy");
         Validate.intIsPositive(days, "Issue duration");
 
         if (!bookCopy.canBeIssued()) {
-            throw new OperationNotSupportedException("Book Copy already issued");
+            throw new BookCantBeIssuedException("Book Copy already issued");
         }
 
         if (reservedCopies.contains(bookCopy)) {
@@ -53,26 +56,26 @@ public class Member {
         bookCopy.issueCopy(this, days);
     }
 
-    public void returnBook(BookCopy bookCopy) throws OperationNotSupportedException, IllegalArgumentException {
+    public void returnBook(BookCopy bookCopy) throws IllegalArgumentException, InactiveMemberException, BookCantBeReturnedException {
 
         membership.ensureIsActive();
         Validate.objectIsNonNull(bookCopy, "Book Copy");
 
         if (!issuedCopies.contains(bookCopy)) {
-            throw new OperationNotSupportedException("Book copy was not issued by this member");
+            throw new BookCantBeReturnedException("Book copy was not issued by this member");
         }
 
         issuedCopies.remove(bookCopy);
         bookCopy.returnCopy();
     }
 
-    public void reserveBook(BookCopy bookCopy) throws OperationNotSupportedException, IllegalArgumentException {
+    public void reserveBook(BookCopy bookCopy) throws IllegalArgumentException, InactiveMemberException, BookCantBeReservedException {
 
         membership.ensureIsActive();
         Validate.objectIsNonNull(bookCopy, "Book Copy");
 
         if (!bookCopy.canBeReserved()) {
-            throw new OperationNotSupportedException("Book Copy cannot be reserved");
+            throw new BookCantBeReservedException("Book Copy cannot be reserved");
         }
 
         reservedCopies.add(bookCopy);

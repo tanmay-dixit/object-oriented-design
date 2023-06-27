@@ -1,6 +1,7 @@
 package design.library;
 
 import java.time.LocalDate;
+import design.library.BookCopy;
 
 public class Reservation {
 

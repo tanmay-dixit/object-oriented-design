@@ -6,7 +6,7 @@ public class BookLocation {
     private final int shelf;
     private final int position;
 
-    public BookLocation(Category section, int rack, int shelf, int position) {
+    public BookLocation(Category section, int rack, int shelf, int position) throws IllegalArgumentException {
         validate(section, rack, shelf, position);
         this.section = section;
         this.rack = rack;
@@ -14,7 +14,7 @@ public class BookLocation {
         this.position = position;
     }
 
-    private void validate(Category section, int rack, int shelf, int position) {
+    private void validate(Category section, int rack, int shelf, int position) throws IllegalArgumentException {
         Validate.objectIsNonNull(section, "Section");
         Validate.intIsPositive(rack, "Rack");
         Validate.intIsPositive(shelf, "Shelf");

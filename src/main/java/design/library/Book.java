@@ -64,7 +64,7 @@ public class Book {
         return copies;
     }
 
-    public void validate(String isbn,
+    private void validate(String isbn,
                          String title,
                          String author,
                          int pages,
@@ -127,11 +127,11 @@ public class Book {
         return copies.add(newCopy);
     }
 
-    public void removeCopy(int copyNumberToRemove) throws IllegalArgumentException {
+    public void removeCopy(int copyNumberToRemove) throws IllegalArgumentException, BookCantBeRemovedException {
         Validate.intIsPositive(copyNumberToRemove, "Copy Number");
         boolean removed = this.copies.removeIf(copy -> copy.getCopyNumber() == copyNumberToRemove);
         if (!removed) {
-            throw new IllegalArgumentException("Book with Copy Number " + copyNumberToRemove + " does not exist");
+            throw new BookCantBeRemovedException("Book with Copy Number " + copyNumberToRemove + " does not exist");
         }
     }
 

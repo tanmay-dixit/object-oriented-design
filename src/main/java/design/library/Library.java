@@ -6,7 +6,8 @@ public class Library {
     private Set<Member> members;
     private Catalog catalog;
 
-    public void addMember(String name) {
+    public void addMember(String name) throws IllegalArgumentException {
+        Validate.stringIsNotBlank(name, "Member name");
         var newMember = new Member(name, catalog);
         members.add(newMember);
     }

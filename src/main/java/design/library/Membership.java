@@ -12,18 +12,18 @@ public class Membership {
         this.endDate = startDate.plusYears(1);
     }
 
-    public void ensureIsActive() throws UnsupportedOperationException{
-        if(!isActive()) {
-            throw new UnsupportedOperationException("Member's membership is not active.");
+    public void ensureIsActive() throws InactiveMemberException {
+        if (!isActive()) {
+            throw new InactiveMemberException("Member's membership is not active.");
         }
     }
 
-    private boolean isActive() {
+    public boolean isActive() {
         return endDate.isAfter(LocalDate.now());
     }
 
     public void renew() {
-        if(isActive()) {
+        if (isActive()) {
             extend();
         } else {
             restart();

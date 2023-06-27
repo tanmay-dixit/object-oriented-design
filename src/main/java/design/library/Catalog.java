@@ -15,7 +15,8 @@ public class Catalog {
         this.books = new HashSet<>(books);
     }
 
-    public static Catalog of(Set<Book> initialBooks) {
+    public static Catalog of(Set<Book> initialBooks) throws IllegalArgumentException {
+        Validate.objectIsNonNull(initialBooks, "Books to add");
         Set<Book> validBooks = new HashSet<>();
         initialBooks.stream()
                 .filter(Objects::nonNull)
@@ -23,7 +24,7 @@ public class Catalog {
         return new Catalog(validBooks);
     }
 
-    public void addBook(Book newBook) throws Exception {
+    public void addBook(Book newBook) throws IllegalArgumentException {
         Validate.objectIsNonNull(newBook, "Book");
         books.add(newBook);
     }
