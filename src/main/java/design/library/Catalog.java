@@ -1,24 +1,26 @@
 package design.library;
 
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
-public record Catalog(
-        List<Book> books,
-        List<IssuedItem> issueHistory,
-        List<ReservedItem> reservationHistory
+import static java.util.stream.Collectors.toSet;
 
-) {
+public class Catalog {
 
+    private final Set<Book> books;
 
-    public static Catalog of(List<Book> initialBooks) {
-        List<Book> validBooks = new ArrayList<>();
+    private Catalog(Set<Book> books) {
+        this.books = new HashSet<>(books);
+    }
+
+    public static Catalog of(Set<Book> initialBooks) {
+        Set<Book> validBooks = new HashSet<>();
         initialBooks.stream()
                 .filter(Objects::nonNull)
                 .forEach(validBooks::add);
-        return new Catalog(validBooks, new ArrayList<>(), new ArrayList<>());
+        return new Catalog(validBooks);
     }
 
     public void addBook(Book newBook) throws Exception {
@@ -26,33 +28,32 @@ public record Catalog(
         books.add(newBook);
     }
 
-    public List<Book> getAllBooks() {
-        return List.copyOf(books);
+    public Set<Book> getAllBooks() {
+        return Set.copyOf(books);
     }
 
-    public List<Book> findBookByTitle(String title) {
-
+    public Set<Book> findBookByTitle(String title) {
         return books.stream()
                 .filter(book -> book.hasTitle(title))
-                .toList();
+                .collect(toSet());
     }
 
-    public List<Book> findBooksByAuthor(String author) {
+    public Set<Book> findBooksByAuthor(String author) {
         return books.stream()
                 .filter(book -> book.hasAuthor(author))
-                .toList();
+                .collect(toSet());
     }
 
-    public List<Book> findBooksPublishedAfter(Instant date) {
+    public Set<Book> findBooksPublishedAfter(LocalDate expectedDate) {
         return books.stream()
-                .filter(book -> book.wasPublishedBefore(date))
-                .toList();
+                .filter(book -> book.wasPublishedAfter(expectedDate))
+                .collect(toSet());
     }
 
-    public List<Book> findBooksPublishedBefore(Instant date) {
+    public Set<Book> findBooksPublishedBefore(LocalDate expectedDate) {
         return books.stream()
-                .filter(book -> book.wasPublishedAfter(date))
-                .toList();
+                .filter(book -> book.wasPublishedBefore(expectedDate))
+                .collect(toSet());
     }
 
 }

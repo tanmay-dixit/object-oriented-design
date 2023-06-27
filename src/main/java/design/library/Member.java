@@ -1,14 +1,99 @@
 package design.library;
 
-import java.time.Instant;
-import java.util.List;
+import javax.naming.OperationNotSupportedException;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 
-public record Member(
-        String name,
-        List<BookCopy> currentlyIssued,
-        List<BookCopy> currentlyReserved,
-        Instant membershipStart,
-        Instant membershipEnd
-) {
+public class Member {
+
+    private final String id;
+    private final String name;
+    private final Catalog catalog;
+    private final Set<BookCopy> issuedCopies;
+    private final Set<BookCopy> reservedCopies;
+    private final Membership membership;
+
+    public Member(String name, Catalog catalog) {
+        Validate.stringIsNotBlank(name, "Member Name");
+        Validate.objectIsNonNull(catalog, "Catalog");
+        this.id = UUID.randomUUID().toString();
+        this.name = name;
+        this.catalog = catalog;
+        this.issuedCopies = new HashSet<>();
+        this.reservedCopies = new HashSet<>();
+        this.membership = new Membership();
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void renewMembership() {
+        membership.renew();
+    }
+
+    public void issueBook(BookCopy bookCopy, int days) throws OperationNotSupportedException, IllegalArgumentException {
+
+        membership.ensureIsActive();
+        Validate.objectIsNonNull(bookCopy, "Book Copy");
+        Validate.intIsPositive(days, "Issue duration");
+
+        if (!bookCopy.canBeIssued()) {
+            throw new OperationNotSupportedException("Book Copy already issued");
+        }
+
+        if (reservedCopies.contains(bookCopy)) {
+            reservedCopies.remove(bookCopy);
+            bookCopy.removeReservationFor(this);
+        }
+
+        issuedCopies.add(bookCopy);
+        bookCopy.issueCopy(this, days);
+    }
+
+    public void returnBook(BookCopy bookCopy) throws OperationNotSupportedException, IllegalArgumentException {
+
+        membership.ensureIsActive();
+        Validate.objectIsNonNull(bookCopy, "Book Copy");
+
+        if (!issuedCopies.contains(bookCopy)) {
+            throw new OperationNotSupportedException("Book copy was not issued by this member");
+        }
+
+        issuedCopies.remove(bookCopy);
+        bookCopy.returnCopy();
+    }
+
+    public void reserveBook(BookCopy bookCopy) throws OperationNotSupportedException, IllegalArgumentException {
+
+        membership.ensureIsActive();
+        Validate.objectIsNonNull(bookCopy, "Book Copy");
+
+        if (!bookCopy.canBeReserved()) {
+            throw new OperationNotSupportedException("Book Copy cannot be reserved");
+        }
+
+        reservedCopies.add(bookCopy);
+        bookCopy.addReservationFor(this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+
+        if (o == null || getClass() != o.getClass())
+            return false;
+
+        Member that = (Member) o;
+        return Objects.equals(this.id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 
 }

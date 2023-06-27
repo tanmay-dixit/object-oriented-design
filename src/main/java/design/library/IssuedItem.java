@@ -1,12 +1,12 @@
 package design.library;
 
-import java.time.Instant;
+import java.time.LocalDate;
 
 public record IssuedItem(
         Member issuer,
         BookCopy issuedCopy,
-        Instant issueDate,
-        Instant dueDate,
-        Instant returnDate
+        LocalDate issueDate,
+        LocalDate dueDate,
+        LocalDate returnDate
 ) {
 }
