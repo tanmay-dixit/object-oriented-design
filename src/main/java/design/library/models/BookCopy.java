@@ -1,4 +1,8 @@
-package design.library;
+package design.library.models;
+
+import design.library.exceptions.BookCannotBeIssuedException;
+import design.library.exceptions.BookCannotBeReservedException;
+import design.library.exceptions.BookCannotBeReturnedException;
 
 import java.util.ArrayDeque;
 import java.util.Objects;

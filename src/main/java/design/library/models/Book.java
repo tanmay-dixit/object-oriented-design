@@ -1,4 +1,6 @@
-package design.library;
+package design.library.models;
+
+import design.library.exceptions.BookCannotBeRemovedException;
 
 import java.time.LocalDate;
 import java.util.*;

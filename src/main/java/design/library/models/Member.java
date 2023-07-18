@@ -1,4 +1,10 @@
-package design.library;
+package design.library.models;
+
+import design.library.Library;
+import design.library.exceptions.BookCannotBeIssuedException;
+import design.library.exceptions.BookCannotBeReservedException;
+import design.library.exceptions.BookCannotBeReturnedException;
+import design.library.exceptions.InactiveMemberException;
 
 import java.util.*;
 

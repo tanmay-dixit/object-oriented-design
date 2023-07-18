@@ -1,4 +1,4 @@
-package design.library;
+package design.library.models;
 
 import java.time.LocalDate;
 import java.util.HashSet;

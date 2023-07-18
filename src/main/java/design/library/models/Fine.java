@@ -1,4 +1,4 @@
-package design.library;
+package design.library.models;
 
 public class Fine {
 

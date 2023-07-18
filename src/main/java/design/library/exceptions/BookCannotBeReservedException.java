@@ -1,4 +1,4 @@
-package design.library;
+package design.library.exceptions;
 
 public class BookCannotBeReservedException extends Exception {
 

@@ -1,4 +1,6 @@
-package design.library;
+package design.library.models;
+
+import design.library.exceptions.InactiveMemberException;
 
 import java.time.LocalDate;
 
