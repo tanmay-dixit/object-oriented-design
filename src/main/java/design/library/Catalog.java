@@ -2,7 +2,6 @@ package design.library;
 
 import java.time.LocalDate;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 
 import static java.util.stream.Collectors.toSet;
@@ -11,21 +10,15 @@ public class Catalog {
 
     private final Set<Book> books;
 
+    public Catalog() {
+        this.books = new HashSet<>();
+    }
+
     private Catalog(Set<Book> books) {
         this.books = new HashSet<>(books);
     }
 
-    public static Catalog of(Set<Book> initialBooks) throws IllegalArgumentException {
-        Validate.objectIsNonNull(initialBooks, "Books to add");
-        Set<Book> validBooks = new HashSet<>();
-        initialBooks.stream()
-                .filter(Objects::nonNull)
-                .forEach(validBooks::add);
-        return new Catalog(validBooks);
-    }
-
-    public void addBook(Book newBook) throws IllegalArgumentException {
-        Validate.objectIsNonNull(newBook, "Book");
+    public void addBook(Book newBook) {
         books.add(newBook);
     }
 
@@ -33,7 +26,7 @@ public class Catalog {
         return Set.copyOf(books);
     }
 
-    public Set<Book> findBookByTitle(String title) {
+    public Set<Book> findBooksByTitle(String title) {
         return books.stream()
                 .filter(book -> book.hasTitle(title))
                 .collect(toSet());
@@ -54,6 +47,12 @@ public class Catalog {
     public Set<Book> findBooksPublishedBefore(LocalDate expectedDate) {
         return books.stream()
                 .filter(book -> book.wasPublishedBefore(expectedDate))
+                .collect(toSet());
+    }
+
+    public Set<Book> findBooksBySubject(Subject subject) {
+        return books.stream()
+                .filter(book -> book.hasSubject(subject))
                 .collect(toSet());
     }
 

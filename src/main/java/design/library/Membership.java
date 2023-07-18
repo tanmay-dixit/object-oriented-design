@@ -3,11 +3,12 @@ package design.library;
 import java.time.LocalDate;
 
 public class Membership {
-
+    private final Member member;
     private LocalDate startDate;
     private LocalDate endDate;
 
-    public Membership() {
+    public Membership(Member member) {
+        this.member = member;
         this.startDate = LocalDate.now();
         this.endDate = startDate.plusYears(1);
     }
@@ -38,4 +39,9 @@ public class Membership {
     private void extend() {
         endDate = endDate.plusYears(1);
     }
+
+    public void cancel() {
+        endDate = LocalDate.now();
+    }
+
 }

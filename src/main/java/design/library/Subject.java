@@ -1,6 +1,6 @@
 package design.library;
 
-public enum Category {
+public enum Subject {
     BIOGRAPHY,
     BUSINESS,
     CHILDREN,

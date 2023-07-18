@@ -8,11 +8,10 @@ public class Reservation {
     private final LocalDate reservationDate;
     private final BookCopy copy;
 
-    public Reservation(Member reserver,
-                       BookCopy copy) {
+    public Reservation(BookCopy copy, Member reserver) {
+        this.copy = copy;
         this.reserver = reserver;
         this.reservationDate = LocalDate.now();
-        this.copy = copy;
     }
 
     public boolean wasDoneBy(Member member) {

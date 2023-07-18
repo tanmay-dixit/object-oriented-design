@@ -1,7 +1,7 @@
 package design.library;
 
-import java.time.LocalDate;
 import java.util.ArrayDeque;
+import java.util.Objects;
 import java.util.Queue;
 
 public class BookCopy {
@@ -10,25 +10,16 @@ public class BookCopy {
     private static int lastCopyNumber = 1;
     private final Book book;
     private final int copyNumber;
-    private final Queue<Reservation> reservations;
     private BookLocation location;
-    private LocalDate nextIssuableDate;
-    private Member issuer;
+    private Issuance issuance;
+    private final Queue<Reservation> reservations;
 
-    public BookCopy(Book book,
-                    BookLocation location) throws IllegalArgumentException {
-        validate(book, location);
+    public BookCopy(Book book, BookLocation location) {
         this.book = book;
         this.copyNumber = lastCopyNumber++;
         this.location = location;
-        this.nextIssuableDate = LocalDate.now();
-        this.issuer = null;
+        this.issuance = null;
         this.reservations = new ArrayDeque<>();
-    }
-
-    private void validate(Book book, BookLocation location) throws IllegalArgumentException {
-        Validate.objectIsNonNull(book, "Book");
-        Validate.objectIsNonNull(location, "Book Location");
     }
 
     public int getCopyNumber() {
@@ -39,12 +30,9 @@ public class BookCopy {
         return location;
     }
 
-    public LocalDate getNextIssuableDate() {
-        return nextIssuableDate;
-    }
 
     public boolean canBeIssued() {
-        return issuer == null;
+        return issuance == null;
     }
 
     public boolean canBeReserved() {
@@ -55,29 +43,52 @@ public class BookCopy {
         location = newLocation;
     }
 
-    public void issueCopy(Member member, int days) throws BookCantBeIssuedException {
+    public void issueFor(Member member) throws BookCannotBeIssuedException {
         if (!canBeIssued()) {
-            throw new BookCantBeIssuedException("Book Copy already issued");
+            throw new BookCannotBeIssuedException("Book Copy already issued");
         }
-        issuer = member;
-        nextIssuableDate = LocalDate.now().plusDays(days);
+        this.issuance = new Issuance(this, member);
     }
 
-    public void returnCopy() throws BookCantBeReturnedException {
+    public void returnCopy() throws BookCannotBeReturnedException {
         if (canBeIssued()) {
-            throw new BookCantBeReturnedException("Book hasn't been issued. Hence cannot be returned.");
+            throw new BookCannotBeReturnedException("Book hasn't been issued. Hence cannot be returned.");
         }
-        issuer = null;
-        nextIssuableDate = LocalDate.now();
+        this.issuance = null;
     }
 
     public void addReservationFor(Member member) {
-        var newReservation = new Reservation(member, this);
-        reservations.add(newReservation);
+        var newReservation = new Reservation(this, member);
+        this.reservations.add(newReservation);
     }
 
     public void removeReservationFor(Member member) {
         reservations.removeIf(reservation -> reservation.wasDoneBy(member) && reservation.wasDoneFor(this));
     }
 
+    public void ensureCanBeIssued() throws BookCannotBeIssuedException {
+        if (!canBeIssued()) {
+            throw new BookCannotBeIssuedException("Book Copy already issued");
+        }
+    }
+
+
+    public void ensureCanBeReserved() throws BookCannotBeReservedException {
+        if (!canBeReserved()) {
+            throw new BookCannotBeReservedException("Book Copy cannot be reserved");
+        }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        BookCopy copy = (BookCopy) o;
+        return copyNumber == copy.copyNumber && Objects.equals(book, copy.book);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(book, copyNumber);
+    }
 }

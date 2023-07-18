@@ -1,85 +1,99 @@
 package design.library;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 public class Member {
 
+    private static final int MAX_ISSUANCES = 5;
+
     private final String id;
     private final String name;
-    private final Catalog catalog;
+    private final Library library;
     private final Set<BookCopy> issuedCopies;
     private final Set<BookCopy> reservedCopies;
     private final Membership membership;
 
-    public Member(String name, Catalog catalog) {
-        Validate.stringIsNotBlank(name, "Member Name");
-        Validate.objectIsNonNull(catalog, "Catalog");
+    public Member(String name, Library library) {
         this.id = UUID.randomUUID().toString();
         this.name = name;
-        this.catalog = catalog;
+        this.library = library;
         this.issuedCopies = new HashSet<>();
         this.reservedCopies = new HashSet<>();
-        this.membership = new Membership();
+        this.membership = new Membership(this);
+    }
+
+    public String getId() {
+        return id;
     }
 
     public String getName() {
         return name;
     }
 
+    public Library getLibrary() {
+        return library;
+    }
+
+    public Set<BookCopy> getIssuedCopies() {
+        return issuedCopies;
+    }
+
+    public Set<BookCopy> getReservedCopies() {
+        return reservedCopies;
+    }
+
     public void renewMembership() {
         membership.renew();
     }
 
-    public boolean isActive() {
-        return membership.isActive();
+    public void cancelMembership() {
+        membership.cancel();
     }
 
-    public void issueBook(BookCopy bookCopy, int days) throws IllegalArgumentException, InactiveMemberException, BookCantBeIssuedException {
-
-        membership.ensureIsActive();
-        Validate.objectIsNonNull(bookCopy, "Book Copy");
-        Validate.intIsPositive(days, "Issue duration");
-
-        if (!bookCopy.canBeIssued()) {
-            throw new BookCantBeIssuedException("Book Copy already issued");
+    public void ensureCanIssue() throws BookCannotBeIssuedException {
+        if(issuedCopies.size() == MAX_ISSUANCES) {
+            throw new BookCannotBeIssuedException("Maximum book issuance reached for member");
         }
-
-        if (reservedCopies.contains(bookCopy)) {
-            reservedCopies.remove(bookCopy);
-            bookCopy.removeReservationFor(this);
-        }
-
-        issuedCopies.add(bookCopy);
-        bookCopy.issueCopy(this, days);
     }
 
-    public void returnBook(BookCopy bookCopy) throws IllegalArgumentException, InactiveMemberException, BookCantBeReturnedException {
-
+    public void ensureIsActive() throws InactiveMemberException {
         membership.ensureIsActive();
-        Validate.objectIsNonNull(bookCopy, "Book Copy");
-
-        if (!issuedCopies.contains(bookCopy)) {
-            throw new BookCantBeReturnedException("Book copy was not issued by this member");
-        }
-
-        issuedCopies.remove(bookCopy);
-        bookCopy.returnCopy();
     }
 
-    public void reserveBook(BookCopy bookCopy) throws IllegalArgumentException, InactiveMemberException, BookCantBeReservedException {
+    public void issueCopy(BookCopy copy) throws BookCannotBeIssuedException, InactiveMemberException {
+        library.issueCopyForMember(copy, this);
+    }
 
-        membership.ensureIsActive();
-        Validate.objectIsNonNull(bookCopy, "Book Copy");
+    public void addIssuedCopy(BookCopy copy) {
+        this.issuedCopies.add(copy);
+    }
 
-        if (!bookCopy.canBeReserved()) {
-            throw new BookCantBeReservedException("Book Copy cannot be reserved");
-        }
+    public void returnCopy(BookCopy copy) throws BookCannotBeReturnedException, InactiveMemberException {
+        library.returnCopyForMember(copy, this);
+    }
 
-        reservedCopies.add(bookCopy);
-        bookCopy.addReservationFor(this);
+    public void removeIssuedCopy(BookCopy copy) {
+        this.issuedCopies.remove(copy);
+    }
+
+    public void reserveCopy(BookCopy copy) throws BookCannotBeReservedException, InactiveMemberException {
+        library.reserveCopyForMember(copy, this);
+    }
+
+    public void addReservedCopy(BookCopy copy) {
+        this.reservedCopies.add(copy);
+    }
+
+    public Set<Book> findBooksByAuthor(String author) {
+        return library.findBooksByAuthor(author);
+    }
+
+    public Set<Book> findBooksByTitle(String title) {
+        return library.findBooksByTitle(title);
+    }
+
+    public Set<Book> findBooksBySubject(Subject subject) {
+        return library.findBooksBySubject(subject);
     }
 
     @Override
